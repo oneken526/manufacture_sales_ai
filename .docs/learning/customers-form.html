@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>顧客登録・編集 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html" class="active">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="customers-index.html">顧客一覧</a> › 顧客登録・編集</div>
+      <div class="page-title">顧客登録・編集</div>
+      <div class="page-subtitle">顧客の新規登録と既存顧客の情報更新を行う画面（共通フォーム）</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（登録）</span>
+        <code>/customers/create</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（編集）</span>
+        <code>/customers/{id}/edit</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目とバリデーション</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>必須</th>
+              <th>バリデーションルール</th>
+              <th>なぜそのルールなのか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>会社名</td>
+              <td><span class="required-mark">●</span></td>
+              <td>文字列・最大255文字</td>
+              <td>顧客を識別する主たる名称のため必須。DBカラムの上限（VARCHAR 255）に合わせている</td>
+            </tr>
+            <tr>
+              <td>担当者名</td>
+              <td>任意</td>
+              <td>文字列・最大255文字</td>
+              <td>窓口担当者がいない・不明な場合もあるため任意</td>
+            </tr>
+            <tr>
+              <td>住所</td>
+              <td>任意</td>
+              <td>文字列・最大500文字</td>
+              <td>住所は番地・建物名など長くなりがちなため255より余裕を持たせている</td>
+            </tr>
+            <tr>
+              <td>電話番号</td>
+              <td>任意</td>
+              <td>文字列・最大20文字</td>
+              <td>数値型ではなく文字列型にしているのは、ハイフンあり（<code>03-1234-5678</code>）・なし両方を受け付けるため</td>
+            </tr>
+            <tr>
+              <td>メールアドレス</td>
+              <td>任意</td>
+              <td>メール形式・最大255文字</td>
+              <td>フォーマット検証により <code>xxx@yyy.zzz</code> 形式でない入力を弾いて入力ミスを防ぐ</td>
+            </tr>
+            <tr>
+              <td>与信枠</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・0以上</td>
+              <td>与信なし（0円）は許容するが、負の与信枠は業務上意味をなさないため0以上を必須とする</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">バリデーション（サーバーサイド）</div>
+          <div class="step-desc"><code>StoreCustomerRequest</code> / <code>UpdateCustomerRequest</code> のバリデーションルールに基づきチェック。エラーがあれば入力値を保持したまま（<code>old()</code>）フォームを再表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">登録処理（新規登録の場合）</div>
+          <div class="step-desc"><code>CustomerService::create()</code> を通じて <code>customers</code> テーブルに INSERT。成功後は顧客詳細画面（<code>/customers/{id}</code>）へリダイレクトし「顧客を登録しました」とフラッシュメッセージを表示。</div>
+        </li>
+        <li>
+          <div class="step-title">更新処理（編集の場合）</div>
+          <div class="step-desc"><code>CustomerService::update()</code> を通じて対象レコードを UPDATE。成功後は顧客詳細画面へリダイレクトし「顧客情報を更新しました」とフラッシュメッセージを表示。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>登録後に詳細画面へリダイレクトする理由:</strong> 「今登録した内容を確認できる」UXのため。一覧へ戻すと、どのレコードが新しく追加されたか見つけにくい。</li>
+          <li><strong>登録と編集で同じフォームパーツ（<code>_form.blade.php</code>）を共用する理由:</strong> 同じ項目を2つのファイルに書くと、項目を追加・変更したときに両方直す手間が生じる（DRY原則）。</li>
+          <li><strong>CustomerService を経由してDBに保存する理由:</strong> Controller → Service → Repository の3層構造で、ビジネスロジックをService層に集めることで、テストの書きやすさと保守性を高めるため。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="customers-index.html">← 顧客一覧</a>
+        <a class="related-link" href="customers-show.html">→ 顧客詳細（登録後に遷移）</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>顧客一覧 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html" class="active">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › 顧客管理</div>
+      <div class="page-title">顧客一覧</div>
+      <div class="page-subtitle">登録済みの顧客を検索・一覧表示する画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL</span>
+        <code>/customers</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">HTTPメソッド</span>
+        <span class="meta-value">GET</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-accounting">accounting</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>種別</th>
+              <th>説明</th>
+              <th>表示条件</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>検索ボックス</td>
+              <td>入力</td>
+              <td>会社名・担当者名・電話番号で部分一致検索。URLパラメータ <code>?q=キーワード</code> で動作</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>検索ボタン</td>
+              <td>ボタン</td>
+              <td>フォームをGET送信して検索を実行する</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>新規顧客登録ボタン</td>
+              <td>ボタン</td>
+              <td>顧客登録画面（<code>/customers/create</code>）へ遷移</td>
+              <td>sales / admin のみ</td>
+            </tr>
+            <tr>
+              <td>会社名</td>
+              <td>表示</td>
+              <td>顧客の法人名</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>担当者名</td>
+              <td>表示</td>
+              <td>顧客側の窓口担当者名</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>電話番号</td>
+              <td>表示</td>
+              <td>連絡先電話番号</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>メール</td>
+              <td>表示</td>
+              <td>連絡先メールアドレス</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>与信枠</td>
+              <td>表示</td>
+              <td>取引可能な上限金額（円）。カンマ区切りで表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>詳細リンク</td>
+              <td>リンク</td>
+              <td>顧客詳細画面へ遷移</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>編集リンク</td>
+              <td>リンク</td>
+              <td>顧客編集画面へ遷移</td>
+              <td>sales / admin のみ</td>
+            </tr>
+            <tr>
+              <td>削除ボタン</td>
+              <td>ボタン</td>
+              <td>確認ダイアログ表示後にDELETEリクエストを送信</td>
+              <td>admin のみ</td>
+            </tr>
+            <tr>
+              <td>ページネーション</td>
+              <td>ナビ</td>
+              <td>前後ページへの移動リンク。検索キーワードを引き継ぐ</td>
+              <td>全ロール</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">検索フィルタの適用</div>
+          <div class="step-desc">URLパラメータ <code>?q=キーワード</code> が存在する場合、会社名・担当者名・電話番号に対して <code>LIKE '%キーワード%'</code>（部分一致）で絞り込む。キーワードが空の場合は全件取得。</div>
+        </li>
+        <li>
+          <div class="step-title">ページネーション</div>
+          <div class="step-desc">1ページあたり50件表示。ページ遷移時は検索キーワードを <code>?q=...</code> として引き継ぎ、検索結果の2ページ目以降も正しく表示できるようにする。</div>
+        </li>
+        <li>
+          <div class="step-title">ロールによる操作ボタンの出し分け</div>
+          <div class="step-desc">同じ一覧画面でも、ログイン中のユーザーのロールに応じてボタンの表示・非表示が切り替わる。</div>
+        </li>
+        <li>
+          <div class="step-title">削除処理（admin のみ）</div>
+          <div class="step-desc">削除ボタン押下 → 確認ダイアログ → DELETE送信。受注が存在する顧客は削除できず、顧客詳細画面にエラーメッセージを表示する。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>部分一致検索にした理由:</strong> 顧客の正式な社名を正確に覚えていなくても素早く探せるようにするため。「株式会社」「（株）」表記の揺れも吸収できる。</li>
+          <li><strong>ページネーションが50件の理由:</strong> システム要件（NFR-021）で定めたパフォーマンス基準。件数が増えても画面が重くならないようにするため。</li>
+          <li><strong>削除を admin のみにした理由:</strong> 顧客データは受注・見積と紐づく重要なマスタデータのため、誤削除を防ぐために権限を絞っている。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="customers-show.html">→ 顧客詳細</a>
+        <a class="related-link" href="customers-form.html">→ 顧客登録・編集</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

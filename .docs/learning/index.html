@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>販売管理システム 画面一覧</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html" class="active">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title">販売管理システム 画面一覧</div>
+      <div class="page-subtitle">実装済み画面の一覧と各画面の概要</div>
+    </div>
+
+    <!-- 業務フロー -->
+    <div class="section">
+      <div class="section-title">業務フロー全体図</div>
+      <div class="flow">顧客マスタ登録
+    │
+    ▼
+見積作成 ──── 製品マスタ参照
+    │
+    ▼
+見積詳細確認・PDF出力（顧客へ送付）
+    │
+    ▼
+受注確定（在庫引当が自動実行される）
+    │
+    ▼
+受注一覧 ※別タスクで実装予定
+    │
+    ▼
+出荷・請求 ※別タスクで実装予定</div>
+    </div>
+
+    <!-- ロール説明 -->
+    <div class="section">
+      <div class="section-title">ロール（役割）とアクセス権限</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ロール</th>
+              <th>名称</th>
+              <th>主な権限</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-admin">admin</span></td>
+              <td>システム管理者</td>
+              <td>すべての機能を利用可能。ユーザー管理・マスタ管理・削除操作</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-sales">sales</span></td>
+              <td>営業担当者</td>
+              <td>顧客登録・編集、見積作成・受注確定</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warehouse">warehouse</span></td>
+              <td>在庫・出荷担当者</td>
+              <td>製品一覧閲覧、在庫調整</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-accounting">accounting</span></td>
+              <td>管理職・経理担当</td>
+              <td>顧客・製品の参照、経理業務</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 顧客管理 -->
+    <div class="section">
+      <div class="section-title">顧客マスタ管理</div>
+      <div class="card-grid">
+        <a class="card" href="customers-index.html">
+          <div class="card-category">顧客管理</div>
+          <div class="card-title">顧客一覧</div>
+          <div class="card-url">/customers</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-accounting">accounting</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="customers-show.html">
+          <div class="card-category">顧客管理</div>
+          <div class="card-title">顧客詳細</div>
+          <div class="card-url">/customers/{id}</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-accounting">accounting</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="customers-form.html">
+          <div class="card-category">顧客管理</div>
+          <div class="card-title">顧客登録・編集</div>
+          <div class="card-url">/customers/create<br>/customers/{id}/edit</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 製品管理 -->
+    <div class="section">
+      <div class="section-title">製品マスタ管理</div>
+      <div class="card-grid">
+        <a class="card" href="products-index.html">
+          <div class="card-category">製品管理</div>
+          <div class="card-title">製品一覧</div>
+          <div class="card-url">/products</div>
+          <div class="card-roles">
+            <span class="badge badge-all">全ロール</span>
+          </div>
+        </a>
+        <a class="card" href="products-form.html">
+          <div class="card-category">製品管理</div>
+          <div class="card-title">製品登録・編集</div>
+          <div class="card-url">/products/create<br>/products/{id}/edit</div>
+          <div class="card-roles">
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="products-adjust-stock.html">
+          <div class="card-category">製品管理</div>
+          <div class="card-title">在庫調整</div>
+          <div class="card-url">/products/{id}/adjust-stock</div>
+          <div class="card-roles">
+            <span class="badge badge-warehouse">warehouse</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ユーザー管理 -->
+    <div class="section">
+      <div class="section-title">ユーザー管理</div>
+      <div class="card-grid">
+        <a class="card" href="admin-users-index.html">
+          <div class="card-category">ユーザー管理</div>
+          <div class="card-title">ユーザー一覧</div>
+          <div class="card-url">/admin/users</div>
+          <div class="card-roles">
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="admin-users-form.html">
+          <div class="card-category">ユーザー管理</div>
+          <div class="card-title">ユーザー登録・編集</div>
+          <div class="card-url">/admin/users/create<br>/admin/users/{id}/edit</div>
+          <div class="card-roles">
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 見積管理 -->
+    <div class="section">
+      <div class="section-title">見積管理</div>
+      <div class="card-grid">
+        <a class="card" href="quotations-index.html">
+          <div class="card-category">見積管理</div>
+          <div class="card-title">見積一覧</div>
+          <div class="card-url">/quotations</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="quotations-create.html">
+          <div class="card-category">見積管理</div>
+          <div class="card-title">見積新規作成</div>
+          <div class="card-url">/quotations/create</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+        <a class="card" href="quotations-show.html">
+          <div class="card-category">見積管理</div>
+          <div class="card-title">見積詳細</div>
+          <div class="card-url">/quotations/{id}<br>/quotations/{id}/pdf</div>
+          <div class="card-roles">
+            <span class="badge badge-sales">sales</span>
+            <span class="badge badge-admin">admin</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>

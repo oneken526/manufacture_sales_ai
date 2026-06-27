@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>在庫調整 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html" class="active">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="products-index.html">製品一覧</a> › 在庫調整</div>
+      <div class="page-title">在庫調整</div>
+      <div class="page-subtitle">棚卸しや入荷時に在庫数を手動で増減させる画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（フォーム表示）</span>
+        <code>GET /products/{id}/adjust-stock</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（実行）</span>
+        <code>POST /products/{id}/adjust-stock</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-warehouse">warehouse</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 参照情報 -->
+    <div class="section">
+      <div class="section-title">画面項目 — 現在の在庫情報（参照）</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>品番・製品名</td>
+              <td>調整対象製品の識別情報。フォームのヘッダーとして表示</td>
+            </tr>
+            <tr>
+              <td>実在庫数</td>
+              <td>現在の <code>stock_quantity</code> の値</td>
+            </tr>
+            <tr>
+              <td>引当中在庫数</td>
+              <td>現在の <code>reserved_quantity</code> の値（受注確定済み・出荷待ち分）</td>
+            </tr>
+            <tr>
+              <td>利用可能在庫数</td>
+              <td><code>stock_quantity - reserved_quantity</code> の計算値</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 入力フィールド -->
+    <div class="section">
+      <div class="section-title">画面項目 — 入力フィールド</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>必須</th>
+              <th>バリデーションルール</th>
+              <th>なぜそのルールなのか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>増減数</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・<strong>0以外</strong></td>
+              <td>プラスで増加、マイナスで減少。0の調整は意味がなくログだけが増えるため入力不可</td>
+            </tr>
+            <tr>
+              <td>調整理由（メモ）</td>
+              <td>任意</td>
+              <td>文字列・最大500文字</td>
+              <td>なぜ在庫を調整したかを記録するため。後日の監査・トレーサビリティに役立つ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">バリデーション</div>
+          <div class="step-desc"><code>AdjustStockRequest</code> のルールで増減数（必須・整数・0以外）とメモ（任意・最大500文字）をチェック。</div>
+        </li>
+        <li>
+          <div class="step-title">整合性チェック</div>
+          <div class="step-desc">調整後に <code>stock_quantity + 増減数 &lt; reserved_quantity</code> となる場合は <code>StockAdjustmentViolatesIntegrityException</code> をスローしてエラーメッセージを表示する（在庫を引当数より少なくすることは禁止）。</div>
+        </li>
+        <li>
+          <div class="step-title">在庫更新</div>
+          <div class="step-desc"><code>products.stock_quantity</code> を <code>増減数</code> 分だけ加算（マイナス値の場合は減算）する。</div>
+        </li>
+        <li>
+          <div class="step-title">在庫変動履歴の記録</div>
+          <div class="step-desc"><code>stock_movements</code> テーブルに <code>reason = manual_adjustment（コード値: 5）</code> として操作ログを自動記録する。操作したユーザーID・日時・増減数・メモがすべて保存される。</div>
+        </li>
+        <li>
+          <div class="step-title">二重送信防止</div>
+          <div class="step-desc">「調整を実行する」ボタン押下後にJavaScriptでボタンをdisabled化し「処理中...」と表示する。在庫調整は取り消しが難しいため、誤って2回送信されないよう防止している。</div>
+        </li>
+        <li>
+          <div class="step-title">完了後のリダイレクト</div>
+          <div class="step-desc">調整成功後は製品編集画面（<code>/products/{id}/edit</code>）へリダイレクトし「在庫数を調整しました」と表示する。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>在庫変動をログに残す理由:</strong> 「いつ・誰が・何個増減したか」を追跡できるようにするため。棚卸しの監査対応やヒューマンエラーの調査で証跡が必要。</li>
+          <li><strong>引当数を下回る減算を禁止する理由:</strong> 引当中の在庫は受注確定済みで出荷予定の分。それを減らすと「受注確定したのに在庫がない」という矛盾が生じ、出荷できなくなる。</li>
+          <li><strong>warehouse と admin のみに絞った理由:</strong> 在庫の増減は倉庫担当の業務であり、営業担当が独自に在庫を調整すると実態と乖離するリスクがあるため。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="products-index.html">← 製品一覧</a>
+        <a class="related-link" href="products-form.html">← 製品編集（完了後に遷移）</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

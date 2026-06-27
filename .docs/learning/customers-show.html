@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>顧客詳細 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html" class="active">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="customers-index.html">顧客一覧</a> › 顧客詳細</div>
+      <div class="page-title">顧客詳細</div>
+      <div class="page-subtitle">顧客の基本情報と受注履歴を表示する画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL</span>
+        <code>/customers/{id}</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">HTTPメソッド</span>
+        <span class="meta-value">GET</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-accounting">accounting</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 顧客基本情報 -->
+    <div class="section">
+      <div class="section-title">画面項目 — 顧客基本情報</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+              <th>値なしの場合</th>
+              <th>表示条件</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>会社名</td>
+              <td>顧客の法人名。ページのヘッダーとして表示</td>
+              <td>—</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>担当者名</td>
+              <td>顧客側の窓口担当者</td>
+              <td>「—」と表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>電話番号</td>
+              <td>連絡先電話番号</td>
+              <td>「—」と表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>メールアドレス</td>
+              <td>連絡先メールアドレス</td>
+              <td>「—」と表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>与信枠</td>
+              <td>取引可能な上限金額（円）。カンマ区切りで表示</td>
+              <td>0</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>住所</td>
+              <td>顧客の所在地</td>
+              <td>「—」と表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>編集ボタン</td>
+              <td>顧客編集画面へ遷移</td>
+              <td>—</td>
+              <td>sales / admin のみ</td>
+            </tr>
+            <tr>
+              <td>削除ボタン</td>
+              <td>確認ダイアログ表示後にDELETEリクエストを送信</td>
+              <td>—</td>
+              <td>admin のみ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 受注履歴 -->
+    <div class="section">
+      <div class="section-title">画面項目 — 受注履歴</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+              <th>値なしの場合</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>受注番号</td>
+              <td><code>ORD-{年度}-{連番4桁}</code> 形式の受注識別番号</td>
+              <td rowspan="4" style="vertical-align:middle; color:#6b7280;">「受注履歴はありません」と表示</td>
+            </tr>
+            <tr>
+              <td>受注日</td>
+              <td>受注確定日（<code>confirmed_at</code>）。なければ作成日（<code>created_at</code>）</td>
+            </tr>
+            <tr>
+              <td>ステータス</td>
+              <td>受注のステータス（確定済み / キャンセル 等）</td>
+            </tr>
+            <tr>
+              <td>操作</td>
+              <td>受注詳細へのリンク（受注詳細画面は別タスクで実装予定）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">顧客情報の取得</div>
+          <div class="step-desc">URLの <code>{id}</code> から対象の顧客レコードを取得する。存在しないIDの場合は404エラー。</div>
+        </li>
+        <li>
+          <div class="step-title">受注履歴の取得</div>
+          <div class="step-desc"><code>salesOrders</code> リレーション（<code>sales_orders.customer_id</code> で結合）を <code>id</code> の降順で取得し、最新の受注から順番に表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">削除処理</div>
+          <div class="step-desc">削除ボタン押下 → 確認ダイアログ → DELETE送信。受注が1件でも存在する場合は <code>CustomerHasOrdersException</code> が発生し、削除を中止してエラーメッセージを表示する。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>受注履歴を顧客詳細に表示する理由:</strong> 「この顧客とどんな取引をしてきたか」を1画面で把握できるようにするため。営業担当者が顧客へ連絡する前に取引状況を素早く確認できる。</li>
+          <li><strong>受注が存在する顧客を削除できない理由:</strong> 顧客を削除すると、過去の受注データが「誰の注文か」を失ってしまう（外部キー制約の観点）。業務上も、取引履歴のある顧客を消すことは想定していない。</li>
+          <li><strong>ソフトデリート（<code>SoftDeletes</code>）を使っている理由:</strong> 論理削除なのでDBに削除日時が記録される。誤削除してしまった場合でもDB管理者が復元可能。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="customers-index.html">← 顧客一覧</a>
+        <a class="related-link" href="customers-form.html">→ 顧客編集</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

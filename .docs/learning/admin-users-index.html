@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ユーザー一覧 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html" class="active">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › ユーザー管理</div>
+      <div class="page-title">ユーザー一覧</div>
+      <div class="page-subtitle">システムに登録されているユーザーの管理を行う画面（管理者専用）</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL</span>
+        <code>/admin/users</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">HTTPメソッド</span>
+        <span class="meta-value">GET</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-admin">admin のみ</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+              <th>表示条件</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>新規ユーザー登録ボタン</td>
+              <td>ユーザー登録画面（<code>/admin/users/create</code>）へ遷移</td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>名前</td>
+              <td>ユーザーの氏名</td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>メールアドレス</td>
+              <td>ログインに使用するメールアドレス</td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>役割</td>
+              <td>ロール名（システム管理者 / 営業担当者 / 在庫・出荷担当者 / 管理職・経理担当）</td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>状態バッジ</td>
+              <td>
+                <span class="badge badge-success" style="margin-right:4px;">有効</span> <code>is_active = true</code><br>
+                <span class="badge" style="background:#e5e7eb;color:#374151;">無効</span> <code>is_active = false</code>
+              </td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>編集リンク</td>
+              <td>ユーザー編集画面へ遷移</td>
+              <td>常に表示（自分自身も編集可）</td>
+            </tr>
+            <tr>
+              <td>無効化 / 有効化ボタン</td>
+              <td>有効ユーザーには「無効化」、無効ユーザーには「有効化」ボタンを表示。確認ダイアログあり</td>
+              <td><strong>自分自身の行には表示しない</strong></td>
+            </tr>
+            <tr>
+              <td>パスワード再設定メール送信ボタン</td>
+              <td>対象ユーザーのメールアドレスにパスワードリセットリンクを送信する</td>
+              <td>常に表示</td>
+            </tr>
+            <tr>
+              <td>ページネーション</td>
+              <td>1ページ50件</td>
+              <td>常に表示</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">一覧表示</div>
+          <div class="step-desc">全ユーザーを <code>id</code> 昇順で取得し、50件ページネーションで表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">有効化 / 無効化</div>
+          <div class="step-desc">確認ダイアログ表示 → PATCH送信 → <code>is_active</code> フラグを反転させる。無効化されたユーザーはログインできなくなる。<strong>ログイン中の自分自身は無効化・有効化できない</strong>（サーバーサイドでもチェック）。</div>
+        </li>
+        <li>
+          <div class="step-title">パスワード再設定メール送信</div>
+          <div class="step-desc">POST送信後、Laravelの組み込みパスワードリセット機能（<code>Password::sendResetLink</code>）を利用して対象ユーザーのメールアドレスにリセットリンクを送信する。送信後は一覧画面へリダイレクトし「パスワード再設定メールを送信しました」と表示。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>削除でなく「無効化」で管理する理由:</strong> ユーザーを削除すると、そのユーザーが作成した見積・受注の「誰が操作したか」という履歴情報が失われる。無効化であればユーザーIDが残り、過去の操作ログを正確に追跡できる。</li>
+          <li><strong>自分自身を無効化できない理由:</strong> 管理者が自分のアカウントを誤って無効化すると、システムにログインできる管理者が0人になるリスクがある。これを防ぐためサーバーサイドとUIの両方でチェックしている。</li>
+          <li><strong>パスワード再設定をシステム管理者が送れる理由:</strong> 社員がパスワードを忘れた際のサポートオペレーション（ヘルプデスク対応）のため。管理者が任意のタイミングでリセットメールを送ることができる。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="admin-users-form.html">→ ユーザー登録・編集</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

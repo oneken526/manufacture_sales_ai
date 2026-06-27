@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>見積詳細 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html" class="active">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="quotations-index.html">見積一覧</a> › 見積詳細</div>
+      <div class="page-title">見積詳細</div>
+      <div class="page-subtitle">見積の内容確認・PDF出力・受注確定を行う画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（詳細）</span>
+        <code>GET /quotations/{id}</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（PDF）</span>
+        <code>GET /quotations/{id}/pdf</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（受注確定）</span>
+        <code>POST /quotations/{id}/confirm</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+              <th>値なしの場合</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>見積番号</td>
+              <td>ページヘッダーとして表示（例: <code>QUO-2026-0001</code>）</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>PDFプレビュー・ダウンロードボタン</td>
+              <td>見積書PDFを生成してダウンロード。ファイル名は <code>{見積番号}.pdf</code></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>顧客</td>
+              <td>宛先顧客の会社名</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>ステータス</td>
+              <td>現在の見積ステータス（DRAFT / CONVERTED / CANCELLED / EXPIRED）</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>有効期限</td>
+              <td>設定されていれば <code>YYYY-MM-DD</code> 形式</td>
+              <td>「—」と表示</td>
+            </tr>
+            <tr>
+              <td>備考</td>
+              <td>作成時に入力したメモ・特記事項</td>
+              <td>「—」と表示</td>
+            </tr>
+            <tr>
+              <td>明細テーブル（製品名）</td>
+              <td>製品マスタから取得した製品名</td>
+              <td rowspan="4" style="vertical-align:middle; color:#6b7280;">「明細が登録されていません」</td>
+            </tr>
+            <tr>
+              <td>明細テーブル（数量）</td>
+              <td>注文数量</td>
+            </tr>
+            <tr>
+              <td>明細テーブル（単価）</td>
+              <td>見積作成時に設定した単価（製品マスタとは独立した値）</td>
+            </tr>
+            <tr>
+              <td>明細テーブル（金額）</td>
+              <td>数量 × 単価の計算値</td>
+            </tr>
+            <tr>
+              <td>合計金額</td>
+              <td>全明細の金額合計</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>受注確定ボタン</td>
+              <td>確認ダイアログ表示後に受注確定処理を実行する</td>
+              <td>明細が空の場合はdisabledで「明細が登録されていないため受注確定できません」と表示</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 受注確定処理 -->
+    <div class="section">
+      <div class="section-title">受注確定処理の詳細フロー</div>
+      <div class="info-box">
+        <p>受注確定ボタン押下後、以下の処理がすべてひとつの<strong>DBトランザクション</strong>内で実行されます。どこかで失敗すると全体がロールバックされ、DBの状態は変化しません。</p>
+      </div>
+      <ul class="steps" style="margin-top: 12px;">
+        <li>
+          <div class="step-title">有効期限チェック</div>
+          <div class="step-desc">見積に有効期限が設定されており、かつ現在日時を過ぎている場合は受注確定を中止。見積ステータスを <code>EXPIRED</code> に更新し「有効期限が切れているため受注確定できません」という警告を表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">在庫チェック（悲観的ロック）</div>
+          <div class="step-desc">各明細の製品を <code>SELECT FOR UPDATE</code>（行ロック）で取得する。<code>利用可能在庫（stock_quantity - reserved_quantity）</code> が明細の数量を下回る製品が1つでもあれば、<code>InsufficientStockException</code> をスローしてロールバック。「在庫が不足しています（製品ID・要求数量・利用可能数量）」という警告を表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">在庫引当</div>
+          <div class="step-desc">在庫が充足している場合、各明細の製品の <code>reserved_quantity</code> を明細数量分だけ加算する。同時に <code>stock_movements</code> テーブルに <code>reason = RESERVATION</code> のログを記録する（「見積番号○○の受注確定による在庫引当」というメモ付き）。</div>
+        </li>
+        <li>
+          <div class="step-title">受注の作成</div>
+          <div class="step-desc"><code>sales_orders</code> テーブルに受注番号 <code>ORD-{年度}-{連番4桁}</code> で受注ヘッダーを作成する。<code>sales_order_items</code> テーブルに見積明細をコピーして受注明細を作成する。</div>
+        </li>
+        <li>
+          <div class="step-title">見積ステータス更新</div>
+          <div class="step-desc">見積のステータスを <code>CONVERTED</code>（受注転換済み）に更新する。これ以降、この見積から再度受注確定することはできない。</div>
+        </li>
+        <li>
+          <div class="step-title">完了後のリダイレクト</div>
+          <div class="step-desc">成功時は同じ見積詳細画面へリダイレクトし「受注を確定しました」と表示する。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>悲観的ロック（SELECT FOR UPDATE）を使う理由:</strong> 2人の営業担当が同時に同じ在庫を確定しようとした場合の二重引当を防ぐため。楽観的ロックでは競合した際に在庫がマイナスになりうる。</li>
+          <li><strong>有効期限切れを受注確定時にチェックする理由:</strong> 古い見積の価格・条件で誤って受注してしまうリスクを防ぐため。有効期限が切れた見積は再見積を作成し直す運用を徹底する。</li>
+          <li><strong>受注確定と同時に在庫引当（reserved_quantity 加算）を行う理由:</strong> 受注が確定した瞬間から「その在庫は出荷予定」として確保しないと、同じ在庫を複数の受注に割り当ててしまうため。</li>
+          <li><strong>在庫引当を stock_movements ログに残す理由:</strong> 「いつ・どの受注のために引き当てたか」を追跡できるようにするため。出荷後の在庫消込み処理（別タスク）でも参照される。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- フラッシュメッセージ一覧 -->
+    <div class="section">
+      <div class="section-title">表示されるメッセージ一覧</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>種別</th>
+              <th>表示条件</th>
+              <th>メッセージ内容</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-success">成功</span></td>
+              <td>受注確定が正常に完了した</td>
+              <td>「受注を確定しました」</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning">警告</span></td>
+              <td>有効期限切れの見積に受注確定を試みた</td>
+              <td>「この見積は有効期限が切れているため受注確定できません。再見積を作成してください。」</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning">警告</span></td>
+              <td>在庫不足で受注確定が失敗した</td>
+              <td>「在庫が不足しています（製品ID: ○、要求数量: ○、利用可能数量: ○）。受注確定を中止しました。」</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-info">情報</span></td>
+              <td>見積作成直後にリダイレクトされた</td>
+              <td>「見積を作成しました」</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="quotations-index.html">← 見積一覧</a>
+        <a class="related-link" href="quotations-create.html">← 見積新規作成（作成後にここへ遷移）</a>
+        <a class="related-link" href="products-index.html">製品一覧（在庫確認）</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

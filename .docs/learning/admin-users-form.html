@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ユーザー登録・編集 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html" class="active">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="admin-users-index.html">ユーザー一覧</a> › ユーザー登録・編集</div>
+      <div class="page-title">ユーザー登録・編集</div>
+      <div class="page-subtitle">システムユーザーの新規登録と情報更新を行う画面（管理者専用）</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（登録）</span>
+        <code>/admin/users/create</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（編集）</span>
+        <code>/admin/users/{id}/edit</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-admin">admin のみ</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目とバリデーション</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>登録</th>
+              <th>編集</th>
+              <th>バリデーションルール</th>
+              <th>なぜそのルールなのか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>名前</td>
+              <td><span class="required-mark">●</span></td>
+              <td><span class="required-mark">●</span></td>
+              <td>文字列・最大255文字</td>
+              <td>画面上の表示名として使用するため必須</td>
+            </tr>
+            <tr>
+              <td>メールアドレス</td>
+              <td><span class="required-mark">●</span></td>
+              <td><span class="required-mark">●</span></td>
+              <td>メール形式・小文字・<strong>システム全体で一意</strong></td>
+              <td>ログインIDとして使用するため重複不可。小文字に統一することで大文字小文字の違いによるログイン失敗を防ぐ</td>
+            </tr>
+            <tr>
+              <td>パスワード</td>
+              <td><span class="required-mark">●</span></td>
+              <td>—（編集不可）</td>
+              <td>確認フィールドと一致・Laravelデフォルト強度要件</td>
+              <td>入力ミス防止のため確認入力を必須とする。編集では変更しない（パスワード変更はリセットメールで行う）</td>
+            </tr>
+            <tr>
+              <td>役割</td>
+              <td><span class="required-mark">●</span></td>
+              <td><span class="required-mark">●</span></td>
+              <td>有効なロール値（admin / sales / warehouse / accounting）のいずれか</td>
+              <td>不正なロール値でアカウントが作られないようにサーバーサイドで検証する</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ロール説明 -->
+    <div class="section">
+      <div class="section-title">役割プルダウンの動的説明文</div>
+      <div class="info-box">
+        <p>役割プルダウンを選択すると、JavaScriptによってその役割の説明文がリアルタイムで表示されます。管理者がロールの意味を理解した上で正しく割り当てられるようにするための機能です。</p>
+      </div>
+      <div class="table-wrap" style="margin-top: 12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>ロール値</th>
+              <th>表示される説明文</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-admin">admin</span></td>
+              <td>システム管理者：すべての機能（マスタ管理、ユーザー管理、運用機能）を利用できます。</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-sales">sales</span></td>
+              <td>営業担当者：顧客・受注・見積・請求書の作成や編集ができます。</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warehouse">warehouse</span></td>
+              <td>在庫・出荷担当者：在庫管理・出荷処理ができます。請求書操作はできません。</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-accounting">accounting</span></td>
+              <td>管理職・経理担当：請求書発行や経営状況の確認ができます。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">バリデーション（サーバーサイド）</div>
+          <div class="step-desc"><code>StoreUserRequest</code> / <code>UpdateUserRequest</code> のルールに基づきチェック。エラー時は入力値を保持したまま再表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">登録処理（新規登録の場合）</div>
+          <div class="step-desc">パスワードをbcryptでハッシュ化（<code>Hash::make()</code>）してから <code>users</code> テーブルに INSERT。<code>is_active = true</code> で有効状態として登録。成功後はユーザー一覧画面へリダイレクト。</div>
+        </li>
+        <li>
+          <div class="step-title">更新処理（編集の場合）</div>
+          <div class="step-desc">名前・メールアドレス・役割を UPDATE する。<strong>パスワードは編集画面から変更できない</strong>（パスワード変更はユーザー一覧の「パスワード再設定メール送信」から行う）。成功後は編集画面へリダイレクト。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>パスワードを編集画面で変更できない理由:</strong> 管理者が他人のパスワードを直接知ることはセキュリティリスクになる。パスワードリセットメール経由にすることで、本人だけが新しいパスワードを設定する仕組みを維持している。</li>
+          <li><strong>役割説明をUIで見せる理由:</strong> 管理者がロールの違いを正確に理解した上でアカウントを作成できるようにするため。間違ったロールでアカウントを作ると、過不足のある権限でシステムを使われてしまう。</li>
+          <li><strong>メールアドレスを小文字に統一する理由:</strong> <code>ABC@example.com</code> と <code>abc@example.com</code> は同一メールアドレスだが、大文字小文字の違いでDBが別レコードと判断するのを防ぐため。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="admin-users-index.html">← ユーザー一覧</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

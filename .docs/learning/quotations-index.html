@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>見積一覧 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html" class="active">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › 見積管理</div>
+      <div class="page-title">見積一覧</div>
+      <div class="page-subtitle">作成済み見積の一覧を確認する画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL</span>
+        <code>/quotations</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">HTTPメソッド</span>
+        <span class="meta-value">GET</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- ステータス説明 -->
+    <div class="section">
+      <div class="section-title">見積ステータス一覧</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ステータス</th>
+              <th>DB値</th>
+              <th>意味</th>
+              <th>受注確定</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-info">DRAFT</span></td>
+              <td>1</td>
+              <td>見積中。初期ステータス</td>
+              <td><span class="badge badge-success">可</span>（在庫があれば）</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-success">CONVERTED</span></td>
+              <td>2</td>
+              <td>受注転換済み。すでに受注が作成された</td>
+              <td><span class="badge badge-danger">不可</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge" style="background:#f3f4f6;color:#374151;">CANCELLED</span></td>
+              <td>3</td>
+              <td>キャンセル（現在は画面から操作不可）</td>
+              <td><span class="badge badge-danger">不可</span></td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-warning">EXPIRED</span></td>
+              <td>4</td>
+              <td>期限切れ。有効期限を過ぎた見積</td>
+              <td><span class="badge badge-danger">不可</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>見積新規作成ボタン</td>
+              <td>見積作成画面（<code>/quotations/create</code>）へ遷移</td>
+            </tr>
+            <tr>
+              <td>見積番号</td>
+              <td><code>QUO-{年度}-{連番4桁}</code> 形式の見積識別番号（例: <code>QUO-2026-0001</code>）</td>
+            </tr>
+            <tr>
+              <td>顧客名</td>
+              <td>この見積の宛先顧客の会社名</td>
+            </tr>
+            <tr>
+              <td>ステータス</td>
+              <td>上記ステータス表のいずれか</td>
+            </tr>
+            <tr>
+              <td>有効期限</td>
+              <td>設定されていれば <code>YYYY-MM-DD</code> 形式、なければ「—」</td>
+            </tr>
+            <tr>
+              <td>詳細リンク</td>
+              <td>見積詳細画面（<code>/quotations/{id}</code>）へ遷移</td>
+            </tr>
+            <tr>
+              <td>ページネーション</td>
+              <td>1ページ50件</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">見積一覧の取得</div>
+          <div class="step-desc"><code>QuotationRepository::paginate()</code> 経由で見積を取得し、50件ページネーションで表示する。顧客名の表示のために <code>customer</code> リレーションをEager Loadする。</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="quotations-create.html">→ 見積新規作成</a>
+        <a class="related-link" href="quotations-show.html">→ 見積詳細</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

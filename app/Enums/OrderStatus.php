@@ -28,4 +28,16 @@ enum OrderStatus: int
             self::RETURNED => '返品済み',
         };
     }
+
+    /**
+     * キャンセル可能なステータスかどうかを返す。
+     * shipped(3)以降はキャンセル不可 — dataflow.md「受注ステータス遷移」より。
+     */
+    public function isCancellable(): bool
+    {
+        return match ($this) {
+            self::CONFIRMED, self::SHIPPING_INSTRUCTED => true,
+            default => false,
+        };
+    }
 }

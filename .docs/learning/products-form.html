@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>製品登録・編集 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html" class="active">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="products-index.html">製品一覧</a> › 製品登録・編集</div>
+      <div class="page-title">製品登録・編集</div>
+      <div class="page-subtitle">製品マスタの新規登録と既存製品の情報更新を行う画面（共通フォーム）</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（登録）</span>
+        <code>/products/create</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（編集）</span>
+        <code>/products/{id}/edit</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-admin">admin のみ</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目とバリデーション</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>必須</th>
+              <th>バリデーションルール</th>
+              <th>なぜそのルールなのか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>品番</td>
+              <td><span class="required-mark">●</span></td>
+              <td>文字列・最大50文字・<strong>システム全体で一意</strong></td>
+              <td>同じ品番の製品が2つ存在すると、見積・受注でどちらの製品を指すか特定できなくなるため。編集時は自分自身を除いた一意チェックを行う</td>
+            </tr>
+            <tr>
+              <td>製品名</td>
+              <td><span class="required-mark">●</span></td>
+              <td>文字列・最大255文字</td>
+              <td>DBカラム（VARCHAR 255）の上限に合わせている</td>
+            </tr>
+            <tr>
+              <td>単価</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・0以上</td>
+              <td>負の単価は業務上ありえない。0円（無償提供）は許容する</td>
+            </tr>
+            <tr>
+              <td>単位</td>
+              <td><span class="required-mark">●</span></td>
+              <td>文字列・最大20文字。デフォルト「個」</td>
+              <td>「個」「kg」「本」「セット」など短い単位を想定</td>
+            </tr>
+            <tr>
+              <td>在庫数</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・0以上。デフォルト0</td>
+              <td>マイナス在庫は管理上不正のため下限0。新規登録時の初期在庫数を設定する</td>
+            </tr>
+            <tr>
+              <td>在庫アラート閾値</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・0以上。デフォルト0</td>
+              <td>この数値を在庫数が下回ると、製品一覧で「在庫不足」アラートを表示する。0に設定すれば実質的にアラート無効</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">バリデーション（サーバーサイド）</div>
+          <div class="step-desc"><code>StoreProductRequest</code> / <code>UpdateProductRequest</code> のルールに基づきチェック。エラー時は入力値を保持したまま（<code>old()</code>）フォームを再表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">登録処理（新規登録の場合）</div>
+          <div class="step-desc"><code>ProductService::create()</code> を通じて <code>products</code> テーブルに INSERT。成功後は製品編集画面（<code>/products/{id}/edit</code>）へリダイレクトし「製品を登録しました」と表示。</div>
+        </li>
+        <li>
+          <div class="step-title">更新処理（編集の場合）</div>
+          <div class="step-desc"><code>ProductService::update()</code> を通じて対象レコードを UPDATE。成功後は同じ編集画面へリダイレクトし「製品情報を更新しました」と表示。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>登録後に編集画面へリダイレクトする理由:</strong> 製品マスタは登録後にすぐ追加の修正が必要になることが多いため（例: 閾値を後から調整）、編集画面に留まる設計にしている（顧客登録後に詳細画面へ飛ぶのと対比）。</li>
+          <li><strong>製品登録・編集を admin のみにした理由:</strong> 製品マスタの単価・品番は全ロールが参照するデータ。誤った情報が登録されると全社の見積・受注に影響するため、管理者のみに変更権限を絞っている。</li>
+          <li><strong>登録時に在庫数を設定できる理由:</strong> 新製品を登録する際、初期在庫を同時に設定できることで、わざわざ在庫調整画面を開く手間を省くため。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="products-index.html">← 製品一覧</a>
+        <a class="related-link" href="products-adjust-stock.html">→ 在庫調整</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>製品一覧 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html" class="active">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › 製品管理</div>
+      <div class="page-title">製品一覧</div>
+      <div class="page-subtitle">登録済み製品の在庫状況を一覧で確認する画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL</span>
+        <code>/products</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">HTTPメソッド</span>
+        <span class="meta-value">GET</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-all">全ロール</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 在庫の考え方 -->
+    <div class="section">
+      <div class="section-title">前提知識：在庫の3段階管理</div>
+      <div class="info-box">
+        <p>本システムでは在庫を以下の3つの数値で管理しています。</p>
+        <div class="flow" style="margin-top: 12px; font-size: 12px;">stock_quantity（実在庫数）
+  │
+  ├─ reserved_quantity（引当中）← 受注確定時に加算。出荷完了で減算
+  │
+  └─ 利用可能在庫 = stock_quantity - reserved_quantity
+         ← 新規受注の際にこの数量でチェックを行う</div>
+        <p style="margin-top: 8px; color: #3730a3; font-size: 13px;">例：実在庫100個、引当中30個 → 利用可能70個（この製品で受注確定できる最大数量）</p>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>説明</th>
+              <th>表示条件</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>検索ボックス</td>
+              <td>品番・製品名で部分一致検索（<code>?q=キーワード</code>）</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>新規製品登録ボタン</td>
+              <td>製品登録画面（<code>/products/create</code>）へ遷移</td>
+              <td>admin のみ</td>
+            </tr>
+            <tr>
+              <td>品番</td>
+              <td>製品を一意に識別するコード（例: <code>ABC-001</code>）</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>製品名</td>
+              <td>製品の名称</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>単価</td>
+              <td>標準販売単価（円）。カンマ区切りで表示</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>単位</td>
+              <td>数量の単位（例: 個、kg、本）</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>在庫数</td>
+              <td>実際に倉庫にある在庫数（<code>stock_quantity</code>）</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>引当中</td>
+              <td>受注確定済みで出荷待ちの数量（<code>reserved_quantity</code>）</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>利用可能</td>
+              <td><code>在庫数 - 引当中</code> の計算値。新規受注に使える実質的な在庫数</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>在庫状況バッジ</td>
+              <td>
+                <span class="badge badge-danger" style="margin-right:4px;">在庫切れ</span> stock_quantity = 0<br>
+                <span class="badge badge-warning" style="margin-right:4px;">在庫不足</span> stock_quantity &lt; alert_threshold<br>
+                <span style="color:#6b7280; font-size:12px;">正常時は何も表示しない</span>
+              </td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>行の背景色</td>
+              <td>在庫不足の製品は行の背景が薄赤（<code>bg-red-50</code>）になる</td>
+              <td>全ロール</td>
+            </tr>
+            <tr>
+              <td>編集リンク</td>
+              <td>製品編集画面へ遷移</td>
+              <td>admin のみ</td>
+            </tr>
+            <tr>
+              <td>在庫調整リンク</td>
+              <td>在庫調整画面へ遷移</td>
+              <td>warehouse / admin のみ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">検索フィルタの適用</div>
+          <div class="step-desc">URLパラメータ <code>?q=キーワード</code> が存在する場合、品番・製品名に対して <code>LIKE '%キーワード%'</code> で絞り込む。</div>
+        </li>
+        <li>
+          <div class="step-title">在庫アラートの判定</div>
+          <div class="step-desc">各製品について <code>stock_quantity</code> と <code>alert_threshold</code> を比較してバッジと背景色を決定する。この判定はビュー側（Blade）で行う。</div>
+        </li>
+        <li>
+          <div class="step-title">利用可能在庫の計算</div>
+          <div class="step-desc"><code>stock_quantity - reserved_quantity</code> をビュー側でリアルタイム計算して表示する。DBに保存はしない。</div>
+        </li>
+        <li>
+          <div class="step-title">ページネーション</div>
+          <div class="step-desc">1ページあたり50件表示。検索キーワードはページ遷移時に引き継がれる。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>「在庫数」と「引当中」を別々に表示する理由:</strong> 引当済みの在庫は出荷予定分なので新しい受注に使えない。「実際に使える在庫」を正確に伝えるためこの3つを並べて表示している。</li>
+          <li><strong>在庫アラートの閾値を製品ごとに設定できる理由:</strong> 製品によって発注リードタイムや最低在庫量が異なるため。「この製品は10個割ったらアラート、あちらは50個割ったらアラート」という運用が必要。</li>
+          <li><strong>製品一覧が全ロールに開放されている理由:</strong> 製品情報（在庫数・単価など）は営業・倉庫・経理すべての部門が参照するため。参照は誰でも見られるが、変更は管理者だけに絞っている。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="products-form.html">→ 製品登録・編集（admin）</a>
+        <a class="related-link" href="products-adjust-stock.html">→ 在庫調整（warehouse/admin）</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

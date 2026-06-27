@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>見積新規作成 | 販売管理システム 学習ガイド</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">販売管理システム</div>
+      <div class="sidebar-section-label">学習ガイド</div>
+      <a href="index.html">画面一覧</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">顧客管理</div>
+      <a href="customers-index.html">顧客一覧</a>
+      <a href="customers-show.html">顧客詳細</a>
+      <a href="customers-form.html">顧客登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">製品管理</div>
+      <a href="products-index.html">製品一覧</a>
+      <a href="products-form.html">製品登録・編集</a>
+      <a href="products-adjust-stock.html">在庫調整</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">ユーザー管理</div>
+      <a href="admin-users-index.html">ユーザー一覧</a>
+      <a href="admin-users-form.html">ユーザー登録・編集</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">見積管理</div>
+      <a href="quotations-index.html">見積一覧</a>
+      <a href="quotations-create.html" class="active">見積新規作成</a>
+      <a href="quotations-show.html">見積詳細</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">画面一覧</a> › <a href="quotations-index.html">見積一覧</a> › 見積新規作成</div>
+      <div class="page-title">見積新規作成</div>
+      <div class="page-subtitle">顧客と製品明細を指定して見積書を作成する画面</div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">URL（フォーム）</span>
+        <code>GET /quotations/create</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">URL（保存）</span>
+        <code>POST /quotations</code>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">アクセス権限</span>
+        <span class="meta-value">
+          <span class="badge badge-sales">sales</span>
+          <span class="badge badge-admin">admin</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 画面項目 -->
+    <div class="section">
+      <div class="section-title">画面項目とバリデーション</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>項目名</th>
+              <th>必須</th>
+              <th>バリデーションルール</th>
+              <th>なぜそのルールなのか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>顧客（プルダウン）</td>
+              <td><span class="required-mark">●</span></td>
+              <td><code>customers</code> テーブルに存在するIDであること</td>
+              <td>存在しない顧客IDが送信されても受け付けないようにサーバーサイドで検証する</td>
+            </tr>
+            <tr>
+              <td>明細（1行以上必須）</td>
+              <td><span class="required-mark">●</span></td>
+              <td>配列・最低1件</td>
+              <td>明細が0件の見積は意味をなさないため</td>
+            </tr>
+            <tr>
+              <td>明細 → 製品（プルダウン）</td>
+              <td><span class="required-mark">●</span></td>
+              <td><code>products</code> テーブルに存在するIDであること</td>
+              <td>存在しない製品を見積に含めることはできない</td>
+            </tr>
+            <tr>
+              <td>明細 → 数量</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・1以上</td>
+              <td>0個・マイナスの注文は受注として成立しないため</td>
+            </tr>
+            <tr>
+              <td>明細 → 単価</td>
+              <td><span class="required-mark">●</span></td>
+              <td>整数・0以上</td>
+              <td>無償提供（0円）は許容するが負の単価は不可</td>
+            </tr>
+            <tr>
+              <td>有効期限</td>
+              <td>任意</td>
+              <td>日付形式</td>
+              <td>見積の有効期限。この日付を過ぎると受注確定不可になる。省略可</td>
+            </tr>
+            <tr>
+              <td>備考</td>
+              <td>任意</td>
+              <td>文字列・最大1000文字</td>
+              <td>顧客への伝達事項・特記事項を記載するフリーテキスト</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JavaScript機能 -->
+    <div class="section">
+      <div class="section-title">JavaScript による動的機能</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>機能</th>
+              <th>動作</th>
+              <th>仕組み</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>明細行の動的追加</td>
+              <td>「明細行を追加」ボタンで行を増やせる</td>
+              <td>JavaScriptで新しい入力行のHTMLを生成して挿入</td>
+            </tr>
+            <tr>
+              <td>明細行の削除</td>
+              <td>各行の「削除」ボタンで行を取り除く</td>
+              <td>JavaScriptで該当の行要素を DOM から削除</td>
+            </tr>
+            <tr>
+              <td>製品選択時の単価自動入力</td>
+              <td>製品プルダウン変更時に単価フィールドへマスタ単価を自動入力</td>
+              <td>製品データを <code>data-unit-price</code> 属性に埋め込み、選択時にJSで読み取り</td>
+            </tr>
+            <tr>
+              <td>金額のリアルタイム計算</td>
+              <td>数量・単価の入力ごとに各行の金額と合計金額を更新</td>
+              <td>内部APIエンドポイント <code>POST /api/internal/quotations/calculate</code> をAJAX呼び出し</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 処理内容 -->
+    <div class="section">
+      <div class="section-title">処理内容（保存時）</div>
+      <ul class="steps">
+        <li>
+          <div class="step-title">バリデーション</div>
+          <div class="step-desc"><code>StoreQuotationRequest</code> のルールで全項目を検証。エラー時は入力値を保持したまま再表示する。</div>
+        </li>
+        <li>
+          <div class="step-title">見積番号の採番</div>
+          <div class="step-desc">DBトランザクション内で <code>document_sequences</code> テーブルを参照し、<code>QUO-{西暦年}-{連番4桁}</code> 形式の見積番号を発行する（例: <code>QUO-2026-0001</code>）。トランザクションにより同時登録時の番号重複を防ぐ。</div>
+        </li>
+        <li>
+          <div class="step-title">見積・明細の保存</div>
+          <div class="step-desc"><code>quotations</code> テーブルに見積ヘッダーを INSERT し、各明細行を <code>quotation_items</code> テーブルに INSERT する。ログインユーザーIDが <code>created_by</code> として記録される。</div>
+        </li>
+        <li>
+          <div class="step-title">完了後のリダイレクト</div>
+          <div class="step-desc">保存成功後は作成した見積の詳細画面（<code>/quotations/{id}</code>）へリダイレクトし「見積を作成しました」と表示する。</div>
+        </li>
+      </ul>
+
+      <div class="reason-box" style="margin-top: 16px;">
+        <div class="reason-box-title">💡 なぜそうなっているのか</div>
+        <ul>
+          <li><strong>単価をマスタから自動入力するが手動変更可能にした理由:</strong> 顧客ごとの値引き交渉や特別価格に対応するため。製品マスタの標準単価を変えずに、この見積だけ別の単価を設定できる。</li>
+          <li><strong>金額計算をサーバー側API（<code>/api/internal/quotations/calculate</code>）で行う理由:</strong> 計算ロジックをJavaScriptだけに任せると、改ざんされた数値で見積が作られるリスクがある。サーバー側で計算することで信頼性を確保している。</li>
+          <li><strong>見積番号採番をトランザクション内で行う理由:</strong> 複数の営業担当が同時に見積を作成した場合でも、同じ番号が発行されないようにするため。</li>
+          <li><strong>見積作成者（<code>created_by</code>）を記録する理由:</strong> 受注確定時に「誰が作った見積か」を追跡するため。在庫引当ログにも作成者IDが記録される。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 関連画面 -->
+    <div class="section">
+      <div class="section-title">関連画面</div>
+      <div class="related-links">
+        <a class="related-link" href="quotations-index.html">← 見積一覧</a>
+        <a class="related-link" href="quotations-show.html">→ 見積詳細（保存後に遷移）</a>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
